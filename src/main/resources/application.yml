@@ -1,2 +1,48 @@
+spring:
+  application:
+    name: cloud-gateway
+
+  main:
+    web-application-type: reactive
+
 server:
   port: 8090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: cloud-gateway
+    description: Single public entry point for the chat platform
+
+
+eureka:                                                                   
+  client:                                                                 
+    service-url:                                                          
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}            
+    register-with-eureka: true   
+    should-enforce-registration-at-init: false                                                                             
+    fetch-registry: true                                                                                
+    registry-fetch-interval-seconds: 5                                                                
+    initial-instance-info-replication-interval-seconds: 5                 
+    instance-info-replication-interval-seconds: 10 
+    healthcheck:
+      enabled: false
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
