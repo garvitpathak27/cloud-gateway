@@ -5,24 +5,53 @@ spring:
   main:
     web-application-type: reactive
 
-  cloud:                                                                  
-    gateway:                                                              
-      server:                                                             
-        webflux:                                                          
-          discovery:                                                      
-            locator:                                                      
-              enabled: false                                                          
-          routes:                                                         
-            - id: auth-route                                              
-              uri: lb://auth-service                                      
-              predicates:                                                 
-                - Path=/api/v1/auth/**                      
-            - id: chat-route                                              
-              uri: lb://chat-service                                      
-              predicates:                                                 
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: auth-route
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/v1/auth/**
+              filters:
+                - name: Retry
+                  args:
+                    retries: 1
+                    methods: GET
+                    series: []
+                    exceptions: java.io.IOException
+                    backoff:
+                      firstBackoff: 50ms
+                      maxBackoff: 200ms
+                      factor: 2
+                      basedOnPreviousValue: false
+            - id: chat-route
+              uri: lb://chat-service
+              predicates:
                 - Path=/api/rooms/**
-          default-filters:                                                
-          - PreserveHostHeader
+              filters:
+                - name: Retry
+                  args:
+                    retries: 1
+                    methods: GET
+                    series: []
+                    exceptions: java.io.IOException
+                    backoff:
+                      firstBackoff: 50ms
+                      maxBackoff: 200ms
+                      factor: 2
+                      basedOnPreviousValue: false
+          default-filters:
+            - PreserveHostHeader
+
+    loadbalancer:
+      cache:
+        ttl: 5s
+        capacity: 256
 
 server:
   port: 8090
