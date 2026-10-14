@@ -5,6 +5,25 @@ spring:
   main:
     web-application-type: reactive
 
+  cloud:                                                                  
+    gateway:                                                              
+      server:                                                             
+        webflux:                                                          
+          discovery:                                                      
+            locator:                                                      
+              enabled: false                                                          
+          routes:                                                         
+            - id: auth-route                                              
+              uri: lb://auth-service                                      
+              predicates:                                                 
+                - Path=/api/v1/auth/**                      
+            - id: chat-route                                              
+              uri: lb://chat-service                                      
+              predicates:                                                 
+                - Path=/api/rooms/**
+          default-filters:                                                
+          - PreserveHostHeader
+
 server:
   port: 8090
 
@@ -12,11 +31,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,gateway
+
   endpoint:
     health:
       probes:
         enabled: true
+    gateway:
+      access: read-only
   info:
     env:
       enabled: true
@@ -46,3 +68,7 @@ eureka:
     lease-expiration-duration-in-seconds: 30
     status-page-url-path: /actuator/info
     health-check-url-path: /actuator/health
+
+# logging:
+#   level:
+#     com.netflix.discovery.DiscoveryClient: DEBUG
