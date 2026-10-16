@@ -129,6 +129,6 @@ eureka:
     status-page-url-path: /actuator/info
     health-check-url-path: /actuator/health
 
-# logging:
-#   level:
-#     com.netflix.discovery.DiscoveryClient: DEBUG
+logging:
+  level:
+    com.netflix.discovery.DiscoveryClient: DEBUG
