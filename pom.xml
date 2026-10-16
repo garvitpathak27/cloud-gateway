@@ -84,14 +84,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <plugin>                                                                  
-            <groupId>org.apache.maven.plugins</groupId>                             
-            <artifactId>maven-surefire-plugin</artifactId>                          
-            <configuration>                                                         
-                <argLine>-XX:+AllowRedefinitionToAddDeleteMethods</argLine> <!--      
-        required by BlockHound on JDK 13+ -->                                       
-            </configuration>                                                        
-            </plugin> 
+
+            <!-- BlockHound requires this JVM flag on JDK 13+ (Phase 8, Step 32) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-XX:+AllowRedefinitionToAddDeleteMethods</argLine>
+                </configuration>
+            </plugin>
             <!-- Enforce Reactive-Only Dependencies and Java Version -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

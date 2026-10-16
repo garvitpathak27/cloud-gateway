@@ -1,0 +1,30 @@
+services:
+  cloud-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cloud-gateway:local
+    container_name: cloud-gateway
+    restart: unless-stopped
+    ports:
+      - "8090:8090"                                    # the public entry point
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka/    # Step 5
+      CORS_ALLOWED_ORIGINS: http://localhost:5173      # Step 19
+    # eureka-server, auth-service and chat-service live in their OWN compose
+    # files, merged here via the root docker-compose.yml's `include:`. We
+    # don't depends_on them (NFR8): the gateway must tolerate Eureka being
+    # down at boot, the same contract chat-service already relies on.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8090/actuator/health/liveness"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    mem_limit: 512m
+    networks:
+      - chatapp
+
+networks:
+  chatapp:
+    external: true
