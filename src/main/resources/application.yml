@@ -17,6 +17,9 @@ spring:
             max-idle-time: 15s
             max-life-time: 60s
             eviction-interval: 10s
+          loadbalancer:
+            use404: false
+
           discovery:
             locator:
               enabled: false
@@ -77,6 +80,12 @@ spring:
 
 server:
   port: 8090
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false
+
 
 management:
   endpoints:
