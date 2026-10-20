@@ -7,16 +7,18 @@ spring:
 
   cloud:
     gateway:
-      server:
+      server:   
         webflux:
           httpclient:
             connect-timeout: 2000
             response-timeout: 5s
-          pool:
-            type: elastic
-            max-idle-time: 15s
-            max-life-time: 60s
-            eviction-interval: 10s
+            websocket:
+              max-frame-payload-length: 262144
+            pool:
+              type: elastic
+              max-idle-time: 15s
+              max-life-time: 60s
+              eviction-interval: 10s
           loadbalancer:
             use404: false
 
@@ -68,10 +70,20 @@ spring:
                       maxBackoff: 200ms
                       factor: 2
                       basedOnPreviousValue: false
+            - id: ws-sockjs-route
+              uri: lb://messages-websocket-service
+              predicates:
+                - Path=/ws/info/**
+            - id: ws-route
+              uri: lb:ws://messages-websocket-service
+              predicates:
+                - Path=/ws/**
           default-filters:
             - PreserveHostHeader
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
-            - DedupeResponseHeader=Vary, RETAIN_UNIQUE 
+            - DedupeResponseHeader=Vary, RETAIN_UNIQUE
+
+
 
     loadbalancer:
       cache:
@@ -92,6 +104,8 @@ server:
 
 
 management:
+  server:
+    port: ${MANAGEMENT_PORT:8090}
   endpoints:
     web:
       exposure:

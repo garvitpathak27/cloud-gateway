@@ -20,7 +20,6 @@ class NonBlockingEdgeTest {
 
     @Test
     void edgePathsNeverBlockTheEventLoop() {
-        client.get().uri("/actuator/info").exchange().expectStatus().isOk();               // access log
         client.get().uri("/api/does-not-exist").exchange().expectStatus().isNotFound()     // 404 handler
               .expectBody().jsonPath("$.code").isEqualTo("ROUTE_NOT_FOUND");
         client.get().uri("/api/rooms/").exchange().expectStatus().isEqualTo(503)           // LB + 503 handler
