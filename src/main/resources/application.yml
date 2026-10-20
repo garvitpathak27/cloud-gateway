@@ -77,6 +77,10 @@ spring:
       cache:
         ttl: 5s
         capacity: 256
+      eager-load:
+        clients:
+          - auth-service
+          - chat-service
 
 server:
   port: 8090
