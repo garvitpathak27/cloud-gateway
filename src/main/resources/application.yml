@@ -9,6 +9,15 @@ spring:
     gateway:
       server:   
         webflux:
+          x-forwarded:
+            enabled: true
+            # Append rather than replace: the gateway adds the address it
+            # actually observed to the end of the chain. auth-service reads the
+            # LAST entry, which is therefore the only trustworthy one.
+            for-enabled: true
+            for-append: true
+            proto-enabled: true
+            port-enabled: true
           httpclient:
             connect-timeout: 2000
             response-timeout: 5s
@@ -82,7 +91,6 @@ spring:
             - PreserveHostHeader
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
             - DedupeResponseHeader=Vary, RETAIN_UNIQUE
-
 
 
     loadbalancer:

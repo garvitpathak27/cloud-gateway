@@ -1,0 +1,22 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # -B batch mode: no ANSI, no interactive prompts.
+      # Runs the enforcer (reactive-only, Java 21), compiles main AND test
+      # sources, then runs the suite including BlockHound.
+      - run: ./mvnw -B test
