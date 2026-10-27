@@ -2,6 +2,8 @@ package com.chatapp.gateway.headers;
 
 import java.net.InetSocketAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -28,6 +30,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class ClientIpHeaderFilter implements GlobalFilter, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(ClientIpHeaderFilter.class);
+
     static final String HEADER = "X-Forwarded-For";
 
     @Override
@@ -40,6 +44,18 @@ public class ClientIpHeaderFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest().mutate()
                 .headers(headers -> headers.set(HEADER, clientIp))
                 .build();
+
+        // DEBUG level so it costs nothing in normal running. Enabled in
+        // application.yml while we confirm the header survives to the upstream;
+        // remove the logging level entry once X-1 is settled.
+        if (log.isDebugEnabled()) {
+            log.debug("client_ip_filter path={} remote={} set {}={} now={}",
+                    exchange.getRequest().getPath().value(),
+                    remote,
+                    HEADER,
+                    clientIp,
+                    request.getHeaders().getFirst(HEADER));
+        }
 
         return chain.filter(exchange.mutate().request(request).build());
     }

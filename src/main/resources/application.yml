@@ -9,15 +9,11 @@ spring:
     gateway:
       server:   
         webflux:
-          x-forwarded:
-            enabled: true
-            # Append rather than replace: the gateway adds the address it
-            # actually observed to the end of the chain. auth-service reads the
-            # LAST entry, which is therefore the only trustworthy one.
-            for-enabled: true
-            for-append: true
-            proto-enabled: true
-            port-enabled: true
+          # NOTE: there is no `x-forwarded` property under this prefix in
+          # Spring Cloud 2025.0.0 - /actuator/configprops lists every bound
+          # gateway prefix and it is not among them. A block here binds
+          # nothing and is silently ignored. X-Forwarded-For is written by
+          # ClientIpHeaderFilter instead.
           httpclient:
             connect-timeout: 2000
             response-timeout: 5s
@@ -159,3 +155,6 @@ logging:
   level:
     com.netflix.discovery.DiscoveryClient: DEBUG
     gateway.access: INFO
+    # Temporary, for X-1: shows whether ClientIpHeaderFilter runs and what it
+    # writes. Remove once X-Forwarded-For is confirmed reaching the backends.
+    com.chatapp.gateway.headers: DEBUG
