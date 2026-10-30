@@ -75,6 +75,18 @@ spring:
                       maxBackoff: 200ms
                       factor: 2
                       basedOnPreviousValue: false
+            # messages-websocket-service's REST API. Must stay BEFORE the /ws routes and after chat-route.
+            # Metadata values are bare integers (ms): a "20s" or quoted value is a String, which the gateway
+            # ignores silently, leaving the global 5 s - below the service's 15.4 s worst case (its Step 24).
+            # No StripPrefix (the service maps /api/messages) and no Retry: its 503/504 are final answers,
+            # and a retried 504 would double the wait.
+            - id: messages-route
+              uri: lb://messages-websocket-service
+              predicates:
+                - Path=/api/messages/**
+              metadata:
+                response-timeout: 20000
+                connect-timeout: 2000
             - id: ws-sockjs-route
               uri: lb://messages-websocket-service
               predicates:
@@ -97,6 +109,7 @@ spring:
         clients:
           - auth-service
           - chat-service
+          - messages-websocket-service
 
 server:
   port: 8090
